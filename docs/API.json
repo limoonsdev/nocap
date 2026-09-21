@@ -1,0 +1,1576 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NoCaptcha API",
+    "description": "100% local captcha solver (humanized Playwright): 35+ types, speed metrics, auto-learn, 0 rate-limit.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Service health",
+        "operationId": "health_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Supported captcha types",
+        "operationId": "capabilities_v1_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Capability"
+                  },
+                  "type": "array",
+                  "title": "Response Capabilities V1 Capabilities Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Universal solver: 35+ types, single endpoint (JSON)",
+        "description": "Send `type` (required) + image via `image_b64` or `image_url`\n(or `sitekey`+`url` for browser tokens, `data.challenge` for PoW).\nReturns the answer: `text`, `coords`, `selected_ids` or `token`.",
+        "operationId": "solve_generic_v1_solve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/file": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Universal solver: file upload (multipart)",
+        "description": "Same universal contract as POST /v1/solve but with raw file upload\ninstead of base64. `type` is required.",
+        "operationId": "solve_file_v1_solve_file_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_solve_file_v1_solve_file_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/image": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Image grid select (3x3, animated included)",
+        "operationId": "solve_image_v1_solve_image_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageSolveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/ocr": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Local OCR (normal/text/number/ru/zh/amazon/vk/math)",
+        "operationId": "solve_ocr_v1_solve_ocr_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OcrRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/ocr-upload": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "OCR via file upload",
+        "operationId": "solve_ocr_upload_v1_solve_ocr_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_solve_ocr_upload_v1_solve_ocr_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/audio": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Local audio transcription",
+        "operationId": "solve_audio_v1_solve_audio_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_solve_audio_v1_solve_audio_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/slider": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Slider: bg (+piece) -> x + human track",
+        "operationId": "solve_slider_v1_solve_slider_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SliderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/rotate": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Rotate: image -> angle",
+        "operationId": "solve_rotate_v1_solve_rotate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RotateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/click": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Click: image + instruction -> coords 0-1000",
+        "operationId": "solve_click_v1_solve_click_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClickRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/pow": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "PoW: Altcha/Friendly/CaptchaFox/Prosopo",
+        "operationId": "solve_pow_v1_solve_pow_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PowRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/solve/math": {
+      "post": {
+        "tags": [
+          "solve"
+        ],
+        "summary": "Math: image or text -> answer",
+        "operationId": "solve_math_v1_solve_math_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MathRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/device": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Detected device: GPU when available, else CPU",
+        "operationId": "device_v1_device_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Average speed (s), p50/p95, success rate per type",
+        "operationId": "stats_v1_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/stats/reset": {
+      "post": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Reset counters",
+        "operationId": "stats_reset_v1_stats_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dataset/summary": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Auto-learn state (captures)",
+        "operationId": "dataset_summary_v1_dataset_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dataset/train": {
+      "post": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Train on GPU when available: bank + classifier (AMP, batch)",
+        "operationId": "dataset_train_v1_dataset_train_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TrainRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/limits": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "0 rate-limit proof",
+        "operationId": "limits_v1_limits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/models": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Models + warmup: full resource status",
+        "operationId": "models_status_v1_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/models/download": {
+      "post": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Download + preload everything (ONNX, ddddocr, rapidocr)",
+        "operationId": "models_download_v1_models_download_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ModelsDownload"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/docs.json": {
+      "get": {
+        "summary": "Full API documentation (OpenAPI JSON)",
+        "operationId": "docs_json_v1_docs_json_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_solve_audio_v1_solve_audio_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_solve_audio_v1_solve_audio_post"
+      },
+      "Body_solve_file_v1_solve_file_post": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Captcha type, e.g. amazon-captcha, slider-captcha (see /v1/capabilities)"
+          },
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "Main image (captcha, slider background, ...)"
+          },
+          "file2": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File2",
+            "description": "Second image (slider piece)"
+          },
+          "instruction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instruction",
+            "description": "Instruction for click-captcha / image grids"
+          },
+          "sitekey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sitekey"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "langs": {
+            "type": "string",
+            "title": "Langs",
+            "default": "en"
+          },
+          "timeout": {
+            "type": "integer",
+            "title": "Timeout",
+            "default": 90
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "file"
+        ],
+        "title": "Body_solve_file_v1_solve_file_post"
+      },
+      "Body_solve_ocr_upload_v1_solve_ocr_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "preprocess": {
+            "type": "boolean",
+            "title": "Preprocess",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_solve_ocr_upload_v1_solve_ocr_upload_post"
+      },
+      "Capability": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "supported": {
+            "type": "boolean",
+            "title": "Supported"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "local": {
+            "type": "boolean",
+            "title": "Local",
+            "default": true
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "supported",
+          "method"
+        ],
+        "title": "Capability"
+      },
+      "CaptchaType": {
+        "type": "string",
+        "enum": [
+          "recaptcha-v2",
+          "recaptcha-v3",
+          "recaptcha-enterprise",
+          "hcaptcha",
+          "turnstile",
+          "funcaptcha",
+          "arkose",
+          "geetest",
+          "geetest-v4",
+          "image-select",
+          "image-captcha",
+          "image-text",
+          "normal-captcha",
+          "text-captcha",
+          "number-captcha",
+          "russian-captcha",
+          "chinese-captcha",
+          "amazon-captcha",
+          "vk-captcha",
+          "atb-captcha",
+          "math-captcha",
+          "click-captcha",
+          "audio",
+          "audio-captcha",
+          "slider-captcha",
+          "rotate-captcha",
+          "cutcaptcha",
+          "capy-puzzle",
+          "temu-captcha",
+          "lemin-captcha",
+          "binance-captcha",
+          "tencent-captcha",
+          "altcha",
+          "friendly-captcha",
+          "captchafox",
+          "mtcaptcha",
+          "prosopo-procaptcha",
+          "datadome-captcha",
+          "imperva-captcha"
+        ],
+        "title": "CaptchaType"
+      },
+      "ClickRequest": {
+        "properties": {
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "instruction": {
+            "type": "string",
+            "title": "Instruction",
+            "description": "E.g. 'Click on all cats'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "instruction"
+        ],
+        "title": "ClickRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageSolveRequest": {
+        "properties": {
+          "instruction": {
+            "type": "string",
+            "title": "Instruction",
+            "description": "E.g. 'Select all images with traffic lights'"
+          },
+          "images": {
+            "items": {
+              "$ref": "#/components/schemas/ImageTile"
+            },
+            "type": "array",
+            "title": "Images"
+          },
+          "animated": {
+            "type": "boolean",
+            "title": "Animated",
+            "description": "True for animated tiles (gif/webp/video)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "instruction",
+          "images"
+        ],
+        "title": "ImageSolveRequest"
+      },
+      "ImageTile": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Id"
+          },
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "ImageTile"
+      },
+      "MathRequest": {
+        "properties": {
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "If already OCRed: '2 + 3 = ?'"
+          }
+        },
+        "type": "object",
+        "title": "MathRequest"
+      },
+      "ModelsDownload": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Model name (empty = all)"
+          }
+        },
+        "type": "object",
+        "title": "ModelsDownload"
+      },
+      "OcrRequest": {
+        "properties": {
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "langs": {
+            "type": "string",
+            "title": "Langs",
+            "default": "fr,en"
+          },
+          "preprocess": {
+            "type": "boolean",
+            "title": "Preprocess",
+            "default": true
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "description": "auto|normal|text|number|russian|chinese|amazon|vk|atb|math",
+            "default": "auto"
+          }
+        },
+        "type": "object",
+        "title": "OcrRequest"
+      },
+      "PowRequest": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "altcha|friendly-captcha|captchafox|prosopo-procaptcha",
+            "default": "altcha"
+          },
+          "challenge": {
+            "type": "string",
+            "title": "Challenge",
+            "default": ""
+          },
+          "salt": {
+            "type": "string",
+            "title": "Salt",
+            "default": ""
+          },
+          "maxnumber": {
+            "type": "integer",
+            "title": "Maxnumber",
+            "default": 100000
+          },
+          "algorithm": {
+            "type": "string",
+            "title": "Algorithm",
+            "default": "SHA-256"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "title": "PowRequest"
+      },
+      "RotateRequest": {
+        "properties": {
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "title": "RotateRequest"
+      },
+      "SliderRequest": {
+        "properties": {
+          "bg_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bg B64"
+          },
+          "bg_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bg Url"
+          },
+          "piece_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Piece B64"
+          },
+          "piece_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Piece Url"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width",
+            "default": 300
+          }
+        },
+        "type": "object",
+        "title": "SliderRequest"
+      },
+      "SolveRequest": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/CaptchaType",
+            "description": "Captcha type to solve (35+ supported, see /v1/capabilities)"
+          },
+          "sitekey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sitekey",
+            "description": "Sitekey (reCAPTCHA/hCaptcha/Turnstile/Funcaptcha/MTCaptcha...)"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url",
+            "description": "Page URL hosting the captcha (browser token flow)"
+          },
+          "enterprise": {
+            "type": "boolean",
+            "title": "Enterprise",
+            "default": false
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action",
+            "description": "reCAPTCHA v3 action"
+          },
+          "proxy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proxy",
+            "description": "Optional proxy URL for the browser flow"
+          },
+          "timeout": {
+            "type": "integer",
+            "maximum": 600.0,
+            "minimum": 5.0,
+            "title": "Timeout",
+            "default": 90
+          },
+          "image_b64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64",
+            "description": "Main image as base64 (OCR / slider bg / rotate / click)"
+          },
+          "image_b64_2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image B64 2",
+            "description": "Second image as base64 (slider piece)"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url",
+            "description": "Main image URL (fetched server-side, no CORS issues)"
+          },
+          "instruction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instruction",
+            "description": "Instruction (image-select / click / lemin)"
+          },
+          "langs": {
+            "type": "string",
+            "title": "Langs",
+            "description": "OCR languages: fr,en,ru,zh",
+            "default": "fr,en"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data",
+            "description": "Vendor payload (altcha challenge/salt, tencent appid...)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "title": "SolveRequest",
+        "example": {
+          "sitekey": "xxx",
+          "type": "hcaptcha",
+          "url": "https://example.com"
+        }
+      },
+      "SolveResponse": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "ms": {
+            "type": "integer",
+            "title": "Ms"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token",
+            "description": "Solution token (g-recaptcha-response, h-captcha-response...)"
+          },
+          "coords": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coords"
+          },
+          "selected_ids": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Ids"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "default": 0.0
+          },
+          "detail": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detail",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "type",
+          "ms"
+        ],
+        "title": "SolveResponse"
+      },
+      "TrainRequest": {
+        "properties": {
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type",
+            "description": "Type to train (empty = global bank)"
+          },
+          "epochs": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Epochs",
+            "default": 10
+          },
+          "batch": {
+            "type": "integer",
+            "maximum": 512.0,
+            "minimum": 4.0,
+            "title": "Batch",
+            "default": 64
+          },
+          "lr": {
+            "type": "number",
+            "maximum": 0.1,
+            "minimum": 1e-05,
+            "title": "Lr",
+            "default": 0.003
+          },
+          "device": {
+            "type": "string",
+            "title": "Device",
+            "description": "auto|cuda|mps|cpu (GPU when available)",
+            "default": "auto"
+          },
+          "amp": {
+            "type": "boolean",
+            "title": "Amp",
+            "description": "AMP fp16 on CUDA",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "TrainRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

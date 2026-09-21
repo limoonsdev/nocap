@@ -1,0 +1,10 @@
+services:
+  nocaptcha:
+    build: .
+    ports:
+      - "7888:7888"
+    volumes:
+      - ./models:/app/models
+    environment:
+      - NOCAPTCHA_HOST=0.0.0.0
+      - NOCAPTCHA_PORT=7888
